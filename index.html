@@ -151,29 +151,31 @@
             </div>
         </div>
     </div>
-</section><section class="display-7" style="padding: 0;align-items: center;justify-content: center;flex-wrap: wrap;    align-content: center;display: flex;position: relative;height: 4rem;"><a href="https://mobiri.se/3160029" style="flex: 1 1;height: 4rem;position: absolute;width: 100%;z-index: 1;"><img alt="" style="height: 4rem;" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="></a><p style="margin: 0;text-align: center;" class="display-7">&#8204;</p><a style="z-index:1" href="https://mobirise.com/html-builder.html">HTML Website Maker</a></section><script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>  <script src="assets/parallax/jarallax.js"></script>  <script src="assets/smoothscroll/smooth-scroll.js"></script>  <script src="assets/ytplayer/index.js"></script>  <script src="assets/scrollgallery/scroll-gallery.js"></script>  <script src="assets/theme/js/script.js"></script>  
+</section><section class="display-7" style="padding: 0;align-items: center;justify-content: center;flex-wrap: wrap;    align-content: center;display: flex;position: relative;height: 4rem;"><a href="https://mobiri.se/3160029" style="flex: 1 1;height: 4rem;position: absolute;width: 100%;z-index: 1;"><img alt="" style="height: 4rem;" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="></a><p style="margin: 0;text-align: center;" class="display-7">&#8204;</p><a style="z-index:1" href="https://mobirise.com/html-builder.html">Made by Jalen</a></section><script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>  <script src="assets/parallax/jarallax.js"></script>  <script src="assets/smoothscroll/smooth-scroll.js"></script>  <script src="assets/ytplayer/index.js"></script>  <script src="assets/scrollgallery/scroll-gallery.js"></script>  <script src="assets/theme/js/script.js"></script>  
   
 <script>
+// Set the dimensions based on the width of the window or a parent container
+function getDimensions() {
+    const width = Math.min(960, window.innerWidth - 20);  // Adjust width to be more responsive
+    const height = Math.min(500, window.innerHeight * 0.4);  // Adjust height accordingly
+    return [width, height];
+}
+
 let wordsArray = [
-    { text: "Sad", size: 40 * 4 },  // Frequency = 4
-    { text: "Disappointed", size: 40 * 1 },  // Frequency = 1
-    { text: "Dejected", size: 40 * 1 }   // Frequency = 1
+    { text: "Sad", size: 80 },  // Adjusted sizes for better visibility
+    { text: "Disappointed", size: 40 },
+    { text: "Dejected", size: 40 }
 ];
 
 function generateWordCloud() {
     const inputText = document.getElementById('emotionInput').value.trim();
     document.getElementById('emotionInput').value = ''; // Clear input after use
     if (inputText) {
-        let found = false;
-        for (let i = 0; i < wordsArray.length; i++) {
-            if (wordsArray[i].text === inputText) {
-                wordsArray[i].size += 30; // Increased increment size
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            wordsArray.push({text: inputText, size: 50}); // Increased starting size
+        let found = wordsArray.findIndex(el => el.text === inputText);
+        if (found !== -1) {
+            wordsArray[found].size += 20; // Increment size for existing words
+        } else {
+            wordsArray.push({ text: inputText, size: 40 }); // Start new words at a default size
         }
 
         drawWordCloud();
@@ -181,72 +183,41 @@ function generateWordCloud() {
 }
 
 function drawWordCloud() {
-    d3.select("#wordCloud").selectAll("*").remove(); // Clear previous word cloud
+    const [width, height] = getDimensions();
+
+    const color = d3.scaleSequential(d3.interpolateRainbow)
+                    .domain([0, wordsArray.length - 1]); // Ensure the domain covers the array index range
 
     const layout = d3.layout.cloud()
-        .size([960, 500])
+        .size([width, height])
         .words(wordsArray)
-        .padding(10) // Increased padding for better visibility
-        .rotate(() => 0) // No rotation, words are horizontal
+        .padding(5)
+        .rotate(() => 0) // Ensure horizontal orientation
         .font("Impact")
-        .fontSize(d => d.size) // Use the size directly
+        .fontSize(d => d.size)
         .on("end", draw);
 
     layout.start();
 
     function draw(words) {
-        const cloud = d3.select("#wordCloud").append("svg")
-            .attr("width", layout.size()[0])
-            .attr("height", layout.size()[1])
-            .append("g")
-            .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
-            .selectAll("text")
-            .data(words)
-            .enter().append("text")
-            .style("font-size", d => d.size + "px")
-            .style("font-family", "Impact")
-            .style("fill", () => d3.interpolateCool(Math.random()))  // Color interpolation for aesthetic enhancement
-            .attr("text-anchor", "middle")
-            .attr("transform", d => `translate(${d.x}, ${d.y})rotate(${d.rotate})`)
-            .text(d => d.text);
+        const cloud = d3.select("#wordCloud")
+            .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width / 2}, ${height / 2})`)
+                .selectAll("text")
+                .data(words)
+                .enter().append("text")
+                .style("font-size", d => d.size + "px")
+                .style("font-family", "Impact")
+                .style("fill", (d, i) => color(i))  // Apply color based on the index of the word
+                .attr("text-anchor", "middle")
+                .attr("transform", d => `translate(${d.x}, ${d.y})`)
+                .text(d => d.text);
     }
 }
 </script>
-
-function drawWordCloud() {
-    d3.select("#wordCloud").selectAll("*").remove(); // Clear previous word cloud
-
-    const layout = d3.layout.cloud()
-        .size([960, 500])
-        .words(wordsArray)
-        .padding(10)
-        .rotate(() => 0)  // Set rotation to 0 for horizontal alignment
-        .font("Impact")
-        .fontSize(d => d.size) // Use the size directly
-        .on("end", draw);
-
-    layout.start();
-
-    function draw(words) {
-        const cloud = d3.select("#wordCloud").append("svg")
-            .attr("width", layout.size()[0])
-            .attr("height", layout.size()[1])
-            .append("g")
-            .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
-            .selectAll("text")
-            .data(words)
-            .enter().append("text")
-            .style("font-size", d => d.size + "px")
-            .style("font-family", "Impact")
-            .style("fill", () => d3.interpolateCool(Math.random()))  // Apply color variation
-            .attr("text-anchor", "middle")
-            .attr("transform", d => `translate(${d.x}, ${d.y})rotate(${d.rotate})`)
-            .text(d => d.text);
-    }
-}
-
-
-
 
 
 </body>
